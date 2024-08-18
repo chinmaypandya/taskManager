@@ -1,33 +1,25 @@
 from fastapi import APIRouter, Request, Response
+from fastapi.responses import JSONResponse
 from features.auth.models.user import User, loginUser
 from features.auth.schemas.user import userSchema
-from config.db import conn
 from config.token import generateToken, decodeToken
-
+from features.auth.operations.operations import login, set_new_token_expiry
+from middlewares.limiter import limiter
 from datetime import date
 
 auth_router = APIRouter()
 
 @auth_router.post('/auth/login')
-async def login_user(user: loginUser, response: Response):
-    try:
-        user_dict = dict(user)
-        exists = conn.taskmanager.users.find_one({"username":user_dict['username']})
-        
-        if not exists:
-            return Response('User does not exist', status_code=404)
-        
-        if exists['password'] != user_dict['password']:
-            return Response(content='Invalid Password', status_code=400)
-        
-        token = generateToken(exists)
-        response.set_cookie('session_user', token)
-        
-        return Response(content='Logged In Successfully')
-        
-    except Exception as e:
-        raise e
-    # return Response(content='Logged In Successfully', status_code=200)
+@limiter.limit('1/second')
+async def login_user(user: loginUser, request:Request, response: Response):
+    status_code, content = login(dict(user))
+    
+    if status_code != 200:
+        return Response(content, status_code)
+    
+    response = JSONResponse(content='Logged In Successfully', status_code=status_code)
+    response.set_cookie(key='session_user', value=content['token'], expires=content['expiry'])
+    return response
 
 @auth_router.post('/auth/signup')
 async def signup_user(user: User, response: Response):
@@ -55,16 +47,24 @@ async def signup_user(user: User, response: Response):
     
 @auth_router.get('/auth/logout')
 async def logout_user(response: Response):
-    response.set_cookie('session_user', None)
+    response=JSONResponse(content='Logged Out Successfully')
+    response.delete_cookie(key='session_user')
     
-    return Response(content='Logged out Successfully')
+    return response
 
 @auth_router.get('/auth/session')
-async def get_user(request: Request):
+async def get_user(request: Request, response: Response):
     
     token = request.cookies.get('session_user')
-    print('SESSION', token)
-    # session_user = decodeToken(token)
+    if not token:
+        response = JSONResponse(content='Session does not exist', status_code=404)
+        return response
     
-    return token
+    session_user = decodeToken(token)
+    expiry = set_new_token_expiry()
+    
+    response = JSONResponse(content=session_user, status_code=200)
+    response.set_cookie(key='session_user', value=token, expires=expiry)
+    
+    return response
     

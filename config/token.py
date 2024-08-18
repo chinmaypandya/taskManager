@@ -1,13 +1,12 @@
 import jwt
 from dotenv import load_dotenv
 import os
-from datetime import date
+import datetime
 
 load_dotenv()
 
 def generateToken(payload: object):
-    current_date = date.today().strftime('%d/%m/%Y')
-    token = jwt.encode({**payload, 'signed_at':current_date}, os.getenv('SECRET_KEY'), algorithm='HS256')
+    token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
     return token
 
 def decodeToken(token):
