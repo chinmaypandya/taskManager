@@ -1,9 +1,8 @@
 from config.db import conn
-from config.token import generateToken, decodeToken
+from features.security.token import generateToken, decodeToken
 from datetime import date, timedelta
 from features.auth.schemas.user import userSchema
 from fastapi.responses import JSONResponse
-from typing import Union
 
 def check_if_user_exists(user_dict):
     try:

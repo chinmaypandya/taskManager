@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Request, Response
-from fastapi.responses import JSONResponse
 from features.auth.models.user import User, loginUser
-from features.auth.schemas.user import userSchema
-from config.token import generateToken
 from features.auth.operations.operations import login, logout, signup, send_session
 from middlewares.limiter import limiter
-from datetime import date
 
 auth_router = APIRouter()
 
@@ -23,6 +19,11 @@ async def signup_user(user: User,request:Request, response: Response):
 @limiter.limit('2/second')
 async def logout_user(request: Request):
     return logout()
+
+@auth_router.post('/auth/update_password')
+@limiter.limit('2/second')
+async def update_user_password(request: Request):
+    pass #TODO; to be added later
 
 @auth_router.get('/auth/session')
 @limiter.limit('3/second')
