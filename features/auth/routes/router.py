@@ -27,6 +27,6 @@ async def update_user_password(request: Request):
 
 @auth_router.get('/auth/session')
 @limiter.limit('3/second')
-async def get_user(request: Request):
+async def get_session(request: Request):
     return send_session(request, 'session_user')
     

@@ -4,4 +4,5 @@ import os
 
 load_dotenv()
 
-conn = MongoClient(os.getenv('MONGODB_URI'))
+def get_db_conn():
+    return MongoClient(os.getenv('MONGODB_URI'))
