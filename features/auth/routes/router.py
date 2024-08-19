@@ -10,19 +10,22 @@ from datetime import date
 auth_router = APIRouter()
 
 @auth_router.post('/auth/login')
-@limiter.limit('1/second')
+@limiter.limit('2/second')
 async def login_user(user: loginUser, request:Request, response: Response):
     return login(dict(user))
 
 @auth_router.post('/auth/signup')
-async def signup_user(user: User, response: Response):
+@limiter.limit('2/second')
+async def signup_user(user: User,request:Request, response: Response):
     return signup(dict(user))
-    
+
 @auth_router.get('/auth/logout')
-async def logout_user():
+@limiter.limit('2/second')
+async def logout_user(request: Request):
     return logout()
 
 @auth_router.get('/auth/session')
+@limiter.limit('3/second')
 async def get_user(request: Request):
     return send_session(request, 'session_user')
     
