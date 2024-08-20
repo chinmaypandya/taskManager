@@ -63,11 +63,6 @@ def signup(user_dict):
 def logout():
     return send_response('Logged out Successfully', 200, 'delete cookie', 'session_user')
 
-def check_if_cookie_exists(request, cookie_key:str):
-    value = request.cookies[cookie_key] if cookie_key in request.cookies.keys() else None
-    if not value:
-        return False, ''
-    return True, value
 
 def send_response(content, status_code, mode='default', key=None, value=None, expires=None):
     response = JSONResponse(content, status_code)
@@ -79,14 +74,13 @@ def send_response(content, status_code, mode='default', key=None, value=None, ex
         response.set_cookie(key, value, expires)
     return response
 
-def send_session(request, key):
-    cookie_exists, token = check_if_cookie_exists(request, key)
-    if cookie_exists:
+def send_session(cookie: str | None):
+    if cookie:
         expiry = set_new_token_expiry()
-        content = decodeToken(token)
+        content = decodeToken(cookie)
         content_without_pw = content.copy()
         del content_without_pw['password']
-        return send_response(content=content_without_pw, status_code=200, mode='set cookie', key=key, value=token, expires=expiry)
+        return send_response(content=content_without_pw, status_code=200, mode='set cookie', key='session_user', value=cookie, expires=expiry)
     return send_response('Session does not exist', 404)
 
 def set_new_token_expiry():

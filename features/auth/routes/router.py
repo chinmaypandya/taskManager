@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Request, Response
+from typing import Annotated
+from fastapi import APIRouter, Request, Response, Cookie
 from features.auth.models.user import User, loginUser
 from features.auth.operations.operations import login, logout, signup, send_session
 from middlewares.limiter import limiter
@@ -27,6 +28,6 @@ async def update_user_password(request: Request):
 
 @auth_router.get('/auth/session')
 @limiter.limit('3/second')
-async def get_session(request: Request):
-    return send_session(request, 'session_user')
+async def get_session(request: Request, session_user: Annotated[str | None, Cookie()] = None):
+    return send_session(session_user)
     
