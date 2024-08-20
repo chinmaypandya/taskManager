@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import date
 
 class User(BaseModel):
     name: str
@@ -15,6 +16,8 @@ class updateUser(BaseModel):
     name: str | None = None
     username: str | None = None
     password: str | None= None
-    created_at: str | None= None
-    last_updated_at: str | None = None
+    created_at: date | None= None
+    last_updated_at: date | None = None
+
+
     
