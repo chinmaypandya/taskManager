@@ -12,9 +12,6 @@ class Team(BaseModel):
     created_at: date | None = None
     last_updated_at: date | None = None
 
-class joinTeam(BaseModel):
-    id: str
-
 class updateTeam(BaseModel):
     name: str | None = None
     description: str | None = None
