@@ -9,12 +9,12 @@ auth_router = APIRouter()
 @auth_router.post('/auth/login')
 @limiter.limit('2/second')
 async def login_user(user: loginUser, request: Request):
-    return login(dict(user))
+    return login(user.model_dump())
 
 @auth_router.post('/auth/signup')
 @limiter.limit('2/second')
 async def signup_user(user: User, request: Request):
-    return signup(dict(user))
+    return signup(user.model_dump())
 
 @auth_router.delete('/auth/logout')
 @limiter.limit('2/second')

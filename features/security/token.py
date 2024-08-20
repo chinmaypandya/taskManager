@@ -5,7 +5,7 @@ import datetime
 
 load_dotenv()
 
-def generateToken(payload: object):
+def generateToken(payload: dict):
     token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
     return token
 
