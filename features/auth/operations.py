@@ -1,9 +1,9 @@
 from config.db import get_db_conn
-from features.security.token import generateToken, decodeToken
-from datetime import date, timedelta
-from features.auth.schemas.user import userSchema
+from datetime import date
+from .schemas.user import userSchema
+from features.security.token import generateToken
 from features.security.encrypt import encrypt, values_match
-from fastapi.responses import JSONResponse
+from features.server.operations import send_response, set_new_token_expiry
 
 def check_if_user_exists(user_dict):
     try:
@@ -56,35 +56,12 @@ def signup(user_dict):
         return send_response(content='Signed In Successfully', status_code=200, mode='set cookie', key='session_user', value=token, expires=expiry)
         
     except Exception as e:
-        raise send_response(e, 500)
+        return send_response(e, 500)
     finally:
         conn.close()
 
 def logout():
     return send_response('Logged out Successfully', 200, 'delete cookie', 'session_user')
 
-
-def send_response(content, status_code, mode='default', key=None, value=None, expires=None):
-    response = JSONResponse(content, status_code)
-    if mode == 'default':
-        return response
-    if mode == 'delete cookie':
-        response.delete_cookie(key)
-    if mode == 'set cookie':
-        response.set_cookie(key, value, expires)
-    return response
-
-def send_session(cookie: str | None):
-    if cookie:
-        expiry = set_new_token_expiry()
-        content = decodeToken(cookie)
-        content_without_pw = content.copy()
-        del content_without_pw['password']
-        return send_response(content=content_without_pw, status_code=200, mode='set cookie', key='session_user', value=cookie, expires=expiry)
-    return send_response('Session does not exist', 404)
-
-def set_new_token_expiry():
-    expires = date.today() + timedelta(days=5)
-    return expires
     
         

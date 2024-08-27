@@ -1,21 +1,29 @@
 from pydantic import BaseModel
-from datetime import date
 
 class Member():
-    user_id: str
-    priviledge: bool = False
+    def __init__(self, user_id: str, privilege: bool = False):
+        self.user_id = user_id
+        self.privilege = privilege
+    
+    def get(self):
+        return {
+            'user_id': self.user_id,
+            'privilege': self.privilege
+        }
 
 class Team(BaseModel):
     name: str
     description: str
-    members: list[dict[str, str]] | None = None
-    created_at: date | None = None
-    last_updated_at: date | None = None
+    team_code: str
+    members: dict[str, bool] | None = None
+    created_at: str | None = None
+    last_updated_at: str | None = None
 
 class updateTeam(BaseModel):
+    team_code: str
     name: str | None = None
     description: str | None = None
-    members: list[dict[str, str]] | None = None
-    created_at: date | None = None
-    last_updated_at: date | None = None
+    members: dict[str, bool] | None = None
+    created_at: str | None = None
+    last_updated_at: str | None = None
     

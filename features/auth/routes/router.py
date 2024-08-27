@@ -1,8 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, Request, Cookie
-from features.auth.models.user import User, loginUser
-from features.auth.operations.operations import login, logout, signup, send_session
 from middlewares.limiter import limiter
+from features.auth.models.user import User, loginUser
+from features.auth.operations import login, logout, signup
+from features.server.operations import get_session as send_session
 
 auth_router = APIRouter()
 
