@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request
 from middlewares.limiter import limiter
 from server.operations import get_session as send_session, send_response
 from security.dependencies import secureAPI
+from errors.exceptions import SessionOnGoingException, SessionNotFoundException
 from features.auth.models.user import User, loginUser
 from features.auth.operations import login, logout, signup
 
@@ -10,25 +11,25 @@ auth_router = APIRouter()
 
 @auth_router.post('/auth/login')
 @limiter.limit('2/second')
-async def login_user(user: loginUser, request: Request, validate: secureAPI):
+async def login_user(validate: secureAPI, user: loginUser, request: Request):
     if validate['cookie']:
-        return send_response('Session on going, log out first', 429)
+        raise SessionOnGoingException
     responseParams = await login(user.model_dump())
     return send_response(*responseParams)
 
 @auth_router.post('/auth/signup')
 @limiter.limit('2/second')
-async def signup_user(user: User, request: Request, validate: secureAPI):
+async def signup_user(validate: secureAPI, user: User, request: Request):
     if validate['cookie']:
-        return send_response('Session on going, log out first', 429)
+        raise SessionOnGoingException
     responseParams = await signup(user.model_dump())
     return send_response(*responseParams)
 
 @auth_router.delete('/auth/logout')
 @limiter.limit('2/second')
-async def logout_user(request: Request, validate: secureAPI):
-    if validate['cookie']:
-        return send_response('Log in first', 429)
+async def logout_user(validate: secureAPI, request: Request):
+    if not validate['cookie']:
+        raise SessionNotFoundException
     responseParams = await logout()
     return send_response(*responseParams)
 
@@ -39,6 +40,6 @@ async def update_user_password(request: Request):
 
 @auth_router.get('/auth/session')
 @limiter.limit('3/second')
-async def get_session(request: Request, validate: secureAPI):
-    return await send_session(validate['session_user'])
+async def get_session(validate: secureAPI, request: Request):
+    return send_session(*validate.values())
     

@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from datetime import date, timedelta
 from security.token import decodeToken
 
-async def send_response(content: any, status_code: int, mode: Literal['default', 'set cookie', 'delete cookie', None] = 'default', key: str | None = None, value: str | None = None, expires: date | None = None) -> JSONResponse:
+def send_response(content: any, status_code: int, mode: Literal['default', 'set cookie', 'delete cookie', None] = 'default', key: str | None = None, value: str | None = None, expires: date | None = None) -> JSONResponse:
     response = JSONResponse(content, status_code)
     if mode == 'default':
         pass
@@ -13,7 +13,7 @@ async def send_response(content: any, status_code: int, mode: Literal['default',
         response.set_cookie(key, value, expires)
     return response
 
-async def get_user_from_session(cookie: str | None) -> dict | None:
+def get_user_from_session(cookie: str | None) -> dict | None:
     if cookie:
         content = decodeToken(cookie)
         content_without_pw = content.copy()
@@ -21,8 +21,8 @@ async def get_user_from_session(cookie: str | None) -> dict | None:
         return content_without_pw
     return None
 
-async def get_session(cookie: str | None) -> JSONResponse:
-    user = get_user_from_session(cookie)
+def get_session(user: dict | None, cookie: str | None) -> JSONResponse:
+    # user = get_user_from_session(cookie)
     if user:
         expiry = set_new_token_expiry()
         return send_response(content=user, status_code=200, mode='set cookie', key='session_user', value=cookie, expires=expiry)

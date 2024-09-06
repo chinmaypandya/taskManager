@@ -4,6 +4,12 @@ class RequestException(Exception):
         self.status_code = status_code
         self.hint = hint
 
+class ServerException(Exception):
+    def __init__(self, message: str, status_code: int, error: Exception):
+        self.message = message
+        self.status_code = status_code
+        self.error = error
+
 class CustomException(Exception):
     def __init__(self, message, status_code, hint):
         self.message = message
@@ -17,6 +23,7 @@ UserNotFoundException = RequestException('User does not exist', 404, 'Your data 
 TeamNotFoundException = RequestException('Team does not exist', 404, 'The team is already deleted or was never created')
 TaskNotFoundException = RequestException('Task does not exist', 404, 'The task is already deleted or was never created')
 RequestNotFoundException = RequestException('Request does not exist', 404, 'The request is already deleted/accepted or was never created')
+SessionNotFoundException = RequestException('Session, does not exist', 404, 'You need to login or signup to access this service.')
 
 NoAccessException = RequestException('You do not have access', 403, 'This is a private feature not open to all users. Try logging in with classified credentials')
 
@@ -27,3 +34,5 @@ UserAlreadyExistsException = RequestException('User already exists', 409, 'Canno
 RequestAlreadyExistsException = RequestException('Join Request already exists', 409, 'Cannot create a new request, Please wait till it is either rejected/accepted')
 TeamAlreadyExistsException = RequestException('Team already exists', 409, 'Cannot create a new team with the same code. Try deleting the previous one')
 TaskAlreadyExistsException = RequestException('Task already exists', 409, 'Cannot create a new task, Try deleting the old one or wait for user to complete it')
+
+SessionOnGoingException = RequestException('Session ongoing', 429, 'Log out first to start a new session')

@@ -5,10 +5,10 @@ import datetime
 
 load_dotenv()
 
-def generateToken(payload: dict) -> str:
-    token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
+def generateToken(payload: dict[str, any]) -> str:
+    token = jwt.encode(payload, os.getenv('SECRET_KEY'))
     return token
 
-def decodeToken(token) -> dict:
-    payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
+def decodeToken(token: str) -> dict:
+    payload = jwt.decode(token.encode('utf-8'), os.getenv('SECRET_KEY'), algorithms=['HS256'])
     return payload
